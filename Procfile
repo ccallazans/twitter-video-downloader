@@ -1,1 +1,1 @@
-web: go run cmd/api/*.go $PORT
+web: web
