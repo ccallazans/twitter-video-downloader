@@ -1,19 +1,13 @@
 package helpers
 
 import (
-	"errors"
+	"encoding/json"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/buger/jsonparser"
-)
-
-var (
-	ErrorEmptyValue    = errors.New("empty value")
-	ErrorNotValidUrl   = errors.New("not a valid url")
-	ErrorNotTwitterUrl = errors.New("not a twitter url")
-	ErrorPath          = errors.New("not a valid video url")
 )
 
 func ValidateUrl(rawUrl *string) error {
@@ -54,7 +48,13 @@ func ParseUrl(rawUrl *string) (*string, error) {
 
 func ParseJsonResponse(bodyByte *[]byte) (*string, error) {
 
-	videoUrl, err := jsonparser.GetString(
+	type Content struct {
+		Bitrate     int    `json:"bitrate" validate:"required"`
+		ContentType string `json:"content_type" validate:"required"`
+		Url         string `json:"url" validate:"required"`
+	}
+
+	newData, _, _, err := jsonparser.Get(
 		*bodyByte,
 		"data",
 		"threaded_conversation_with_injections_v2",
@@ -72,12 +72,34 @@ func ParseJsonResponse(bodyByte *[]byte) (*string, error) {
 		"[0]",
 		"video_info",
 		"variants",
-		"[0]",
-		"url",
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return &videoUrl, nil
+	var myContent []Content
+	err = json.Unmarshal(newData, &myContent)
+	if err != nil {
+		return nil, err
+	}
+
+	higher := 0
+	for i, cont := range myContent {
+		if cont.Bitrate > higher {
+			higher = i
+		}
+	}
+
+	return &myContent[higher].Url, nil
+}
+
+func DownloadFile(url string) (*http.Response, error) {
+
+	// Get the data
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }

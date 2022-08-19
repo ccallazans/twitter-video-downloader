@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -11,21 +12,25 @@ import (
 )
 
 func (app *Application) GetUrl(c echo.Context) error {
+	// Get url param
 	args := c.Param("url")
 	if args == "" {
 		return c.JSON(http.StatusBadRequest, helpers.ErrorEmptyValue.Error())
 	}
 
+	// Validate url
 	err := helpers.ValidateUrl(&args)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	// Parse url
 	parsedUrl, err := helpers.ParseUrl(&args)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	// Send Request
 	sendUrl := strings.Replace(config.TwitterGraphQLString, "{replaceID}", *parsedUrl, 1)
 
 	client := http.Client{}
@@ -41,13 +46,31 @@ func (app *Application) GetUrl(c echo.Context) error {
 	}
 	defer res.Body.Close()
 
-	// Read Req
+	// Read response
 	bodyByte, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
+	// Get url video
 	videoUrl, err := helpers.ParseJsonResponse(&bodyByte)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 
-	return c.JSON(http.StatusOK, videoUrl)
+	// Download video
+	downloadResponse, err := helpers.DownloadFile(*videoUrl)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, "erro video")
+	}
+	defer downloadResponse.Body.Close()
+
+	// Writer the body to file
+	c.Response().Header().Set("Content-Disposition", "attachment; filename=twitter-video.mp4")
+	_, err = io.Copy(c.Response().Writer, downloadResponse.Body)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusAccepted, "ok")
 }
