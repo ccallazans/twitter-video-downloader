@@ -31,7 +31,7 @@ func main() {
 
 	app.NewRouter()
 
-	err = app.server.Start(":5000")
+	err = app.server.Start(":" + os.Getenv("PORT"))
 	if err != nil {
 		log.Fatalln(err)
 	}
