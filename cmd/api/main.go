@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/ccallazans/twitter-video-downloader/internal/config"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,10 +14,10 @@ type Application struct {
 }
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	config.RequestHeader.Set("authorization", os.Getenv("authorization"))
 	config.RequestHeader.Set("x-guest-token", os.Getenv("x-guest-token"))
@@ -31,7 +30,7 @@ func main() {
 
 	app.NewRouter()
 
-	err = app.server.Start(":" + os.Getenv("PORT"))
+	err := app.server.Start(":" + os.Getenv("PORT"))
 	if err != nil {
 		log.Fatalln(err)
 	}
