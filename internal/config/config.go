@@ -11,11 +11,5 @@ var (
 		"accept":          {"*/*"},
 		"accept-language": {"en-US,en;q=0.9"},
 		"content-type":    {"application/json"},
-
-		// "authorization": {os.Getenv("authorization")},
-		// "x-guest-token": {os.Getenv("x-guest-token")},
-
-		// "authorization": {"Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"},
-		// "x-guest-token": {"1560722225413644290"},
 	}
 )
