@@ -55,7 +55,7 @@ func (app *Application) GetUrl(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	defer res.Body.Close()
-
+	
 	// Read response
 	bodyByte, err := ioutil.ReadAll(res.Body)
 	if err != nil {
