@@ -10,7 +10,6 @@ import (
 	"github.com/buger/jsonparser"
 	"github.com/ccallazans/twitter-video-downloader/internal/config"
 	"github.com/go-rod/rod"
-	"github.com/go-rod/rod/lib/launcher"
 )
 
 func ValidateUrl(rawUrl *string) error {
@@ -109,15 +108,7 @@ func DownloadFile(url string) (*http.Response, error) {
 
 func LoadPageResource(url string) error {
 
-	// Load page resource
-	u := launcher.New().
-		Set("user-data-dir", "path").
-		Set("headless").
-		Set("no-sandbox").
-		Delete("--headless").
-		MustLaunch()
-
-	page := rod.New().ControlURL(u).NoDefaultDevice().MustConnect().MustPage(url)
+	page := rod.New().NoDefaultDevice().MustConnect().MustPage(url)
 	err := page.WaitLoad()
 	if err != nil {
 		return err
