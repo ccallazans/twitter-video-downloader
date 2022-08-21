@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/buger/jsonparser"
+	"github.com/ccallazans/twitter-video-downloader/internal/config"
+	"github.com/go-rod/rod"
 )
 
 func ValidateUrl(rawUrl *string) error {
@@ -102,4 +104,20 @@ func DownloadFile(url string) (*http.Response, error) {
 	}
 
 	return resp, nil
+}
+
+func LoadPageResource(url string) error {
+
+	// Load page resource
+	page := rod.New().NoDefaultDevice().MustConnect().MustPage(url)
+	err := page.WaitLoad()
+	if err != nil {
+		return err
+	}
+
+	getCookies := page.MustCookies()
+	sessionId := getCookies[0]
+	config.RequestHeader.Set("x-guest-token", sessionId.Value)
+
+	return nil
 }

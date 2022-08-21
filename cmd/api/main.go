@@ -21,7 +21,6 @@ func main() {
 	}
 
 	config.RequestHeader.Set("authorization", os.Getenv("authorization"))
-	config.RequestHeader.Set("x-guest-token", os.Getenv("x-guest-token"))
 
 	logger := log.Default()
 

@@ -11,6 +11,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func (app *Application) GetHome(c echo.Context) error {
+	return c.JSON(http.StatusOK, "Download Twitter Videos")
+}
+
 func (app *Application) GetUrl(c echo.Context) error {
 	// Get url param
 	args := c.Param("url")
@@ -20,6 +24,12 @@ func (app *Application) GetUrl(c echo.Context) error {
 
 	// Validate url
 	err := helpers.ValidateUrl(&args)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	// Load page resource
+	err = helpers.LoadPageResource(args)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -72,5 +82,5 @@ func (app *Application) GetUrl(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusAccepted, "ok")
+	return c.JSON(http.StatusAccepted, "Download Successful!")
 }
